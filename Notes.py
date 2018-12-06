@@ -1,18 +1,24 @@
-__notes__ = \
 
+
+
+__notes__ = \
 """
 DB = "postgreSQL"
-DB.admin = postgresql
+DB.admin = postgres
 DB.pw = devPw
 
 to use postgresql:
 install > setup env param > psql > create user > create db
 
 
-command-line programs stored at  ...\\11\\bin\\
+>> Steps to log into PostgreSQL's default DB:
 
-start db server: pg_ctl -D ^"D^:^\DB^\PostgreSQL^\11^\db0^\^"^" -l logfile start
-stop db server: pg_ctl -D ^"D^:^\DB^\PostgreSQL^\11^\db0^\^"^" -l logfile stop
+cd D:/DB/PostgreSQL/11/bin/
+(start db cluster server): pg_ctl -D ^"D^:^\DB^\PostgreSQL^\11^\data^\^"^" -l logfile start
+(root) psql "dbname=postgres host=localhost user=postgres password=devPw port=5432 sslmode=require"
+(admin) psql "dbname=postgres host=localhost user=admin password=devPw port=5432 sslmode=require"
+(entered into psql shell)
+(stop db server): pg_ctl -D ^"D^:^\DB^\PostgreSQL^\11^\data^\^"^"  stop
 
 
 
