@@ -1,9 +1,1 @@
-{
-  "psql": {
-    "database": "ngo_cn",
-    "user": "admin",
-    "password": "AquaMod1s",
-    "host": "127.0.0.1",
-    "post": "5432"
-  }
-}
+{"psql": {"database": "ngo_cn", "user": "admin", "password": "AquaMod1s", "host": "127.0.0.1", "post": "5432"}}
