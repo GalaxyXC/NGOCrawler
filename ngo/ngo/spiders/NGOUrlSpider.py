@@ -1,38 +1,48 @@
+import os
+import time
+
 import scrapy
 
-from CrawlerEngine import inDatabase
-
 OUTPUT_DIR = "crawled/"
+REQUEST_PART1 = "http://cishan.chinanpo.gov.cn/biz/ma/csmh/a/csmhaDoSort.html?aaee0102_03=&field=aaee0103&sort=desc&flag=0&pageNo="
+MAX_PAGE = 50
+START_PAGE = 1
+with open(OUTPUT_DIR + "existing_ids.txt", 'r') as f:
+    EXISTING_ORG_IDS_STR = f.read()
+print(EXISTING_ORG_IDS_STR[:100])
 
 # TODO Test this crawler
-# crawl static contents
 class NGOUrlSpider(scrapy.Spider):
     name = "ngo_urls"
-    start_urls = ["http://cishan.chinanpo.gov.cn/biz/ma/csmh/a/csmhaDoSort.html?aaee0102_03=&field=aaee0103&sort=desc&flag=0&pageNo=1"]
+    start_urls = [REQUEST_PART1+str(i+START_PAGE) for i in range(MAX_PAGE)]
+    org_ids = set(EXISTING_ORG_IDS_STR.split(','))
 
     def parse(self, response):
         n_records = len(response.xpath("//a"))
         codes_parsed = response.xpath("//a/text()").extract()
         url_parsed = response.xpath("//a/@href").extract()
+
         assert len(codes_parsed) == len(url_parsed), "Length of urls and org's did not match."
+
+        print(f'{n_records} records parsed.')
 
         org_codes = []
         org_urls = []
-        for i in range(n_records):
-            if i%2 == 1:
-                continue
-
+        for i in range(0, n_records, 2):
             code = codes_parsed[i]
-            if not inDatabase(code):
-                org_codes.append(code)
-                org_urls.append(url_parsed[i])
+            self.log(f"code is {code}")
+            if code not in self.org_ids:
+                org_codes.append(codes_parsed[i])
+                org_urls.append(url_parsed[i].split('\r')[0])
 
-        page = self.start_urls.split('=')[-1]
-        filename = OUTPUT_DIR + 'URLs_to_crawl_%s.csv' % page
-        with open(filename, 'wb') as f:
-            for line in range(len(org_codes)):
-                f.write(org_codes[line] + ", ")
-                f.write(org_urls[line] + "\n")
+        if not org_codes and not org_urls:
+            print("All code existed in DB from this page")
+        else:
+            page = len(os.listdir(OUTPUT_DIR))-3  #['existing_id.txt', 'NGOBasic_info_trial', 'static_contents']
+            filename = OUTPUT_DIR + 'URLs_to_crawl_%s.csv' % page
+            with open(filename, 'w') as f:
+                for line in range(len(org_codes)):
+                    f.write(org_codes[line] + ", ")
+                    f.write(org_urls[line] + "\n")
 
-        self.log('Saved file %s' % filename)
-        return org_codes, org_urls
+            self.log('Saved file %s' % filename)

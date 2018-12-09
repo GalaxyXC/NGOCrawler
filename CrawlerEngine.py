@@ -1,20 +1,18 @@
 import os
 import json
+import time
+
 from lxml import html    #这里我们用lxml，也就是xpath的方法
 import psycopg2
+import scrapy
+from scrapy.crawler import CrawlerProcess
 
 import config as cfg
+import ngo.ngo.spiders.NGOUrlSpider as UrlSpider
+import ngo_basic_info.ngo_basic_info.spiders.BasicInfoSpider as BasicSpider
 
-__procedure__ = \
-"""
-1. setup conn. to db
+JOB_QUEUE_OUTPUT_DIR = "ngo/crawled/"
 
-3. prepare "visited" list
-
-4. for i in range(total_pge)
-        crawl page -> parse ngo email
-        sim click 'next page'
-"""
 
 
 class CrawlerEngine(object):
@@ -69,57 +67,44 @@ class CrawlerEngine(object):
         # sql_import = "COPY sample_table FROM 'path/to/file' DELIMITER ',' CSV HEADER;
         pass
 
-    def create_job_queue(self, max_page, conn):
+    def prepare_job_queue(self, conn):
         cursor = conn.cursor()
 
         sql_count_row = "SELECT COUNT(*) FROM basic_info;"
         cursor.execute(sql_count_row)
         count_row = cursor.fetchone()
+        print(f"Database now has {count_row[0]} records.")
 
         sql_existing = "SELECT credit_id FROM basic_info;"
         cursor.execute(sql_existing)
-        existing_org_ids = set(cursor.fetchmany(count_row))
+        existing_org_ids = set(cursor.fetchmany(count_row[0]))
 
-        job_queue = []
-
-        for i in range(max_page):
-            full_request = cfg.REQUEST_PART1 + str(i+1)
-            orgs, urls = NGOUrlSpider(full_request)  # TODO call spider parsing $max_page
-            for i in range(len(orgs)):
-                if orgs[i] in existing_org_ids:
-                    continue
-                else:
-                    job_queue.append(urls[i])
+        with open(JOB_QUEUE_OUTPUT_DIR + "existing_ids.txt", 'w') as f:
+            f.write(",".join([i[0] for i in existing_org_ids]))
 
         cursor.close()
-        return job_queue
+        return existing_org_ids
 
-    def crawl_basic_info(self, job_queue, conn,
-                         checkpoint=50):
+    # Deprecated: call spider from command line console
+    def crawl_basic_info(self, job_queue):
         q = job_queue
-        cur = conn.cursor()
         task_count = 0
         while q:
             url = q.pop()
             try:
-                data = parse_url(url) # TODO need parser here
-                sql_insert = """INSERT INTO basic_info
-                                VALUES (?)
-                """
-                cur.execute(sql_insert, data)
+                process = CrawlerProcess({
+                    'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
+                })
+                process.crawl(BasicSpider)
+                process.start()  # the script will block here until the crawling is finished
+                time.sleep(2)  # TODO need parser here
+                task_count += 1
             except:
                 print("Fail to retrieve: ", url)
                 continue
 
-            task_count += 1
-            if task_count % checkpoint == 0:
-                conn.commit()
-
-        cur.close()
+            print("Successfully retrived %s records", task_count)
         return task_count
-
-    def inDatabase(self, conn, ):\
-        pass
 
     def disconnect(self, conn):
         conn.close()
@@ -128,7 +113,7 @@ if __name__ == '__main__':
     engine = CrawlerEngine()
     conn = engine.connect()
     # engine.create_table_basic_info(conn)
-
+    queue = engine.prepare_job_queue(conn)
 
 
 

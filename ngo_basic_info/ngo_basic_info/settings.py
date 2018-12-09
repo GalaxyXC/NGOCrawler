@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for ngo project
+# Scrapy settings for ngo_basic_info project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -9,14 +9,14 @@
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'ngo'
+BOT_NAME = 'ngo_basic_info'
 
-SPIDER_MODULES = ['ngo.spiders']
-NEWSPIDER_MODULE = 'ngo.spiders'
+SPIDER_MODULES = ['ngo_basic_info.spiders']
+NEWSPIDER_MODULE = 'ngo_basic_info.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'ngo (+http://www.yourdomain.com)'
+#USER_AGENT = 'ngo_basic_info (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -27,13 +27,13 @@ ROBOTSTXT_OBEY = True
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 3
+#DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = False
+#COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -47,13 +47,13 @@ COOKIES_ENABLED = False
 # Enable or disable spider middlewares
 # See https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'ngo.middlewares.NgoSpiderMiddleware': 543,
+#    'ngo_basic_info.middlewares.NgoBasicInfoSpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'ngo.middlewares.NgoDownloaderMiddleware': 543,
+#    'ngo_basic_info.middlewares.NgoBasicInfoDownloaderMiddleware': 543,
 #}
 
 # Enable or disable extensions
@@ -65,7 +65,7 @@ COOKIES_ENABLED = False
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    'ngo.pipelines.NgoPipeline': 300,
+#    'ngo_basic_info.pipelines.NgoBasicInfoPipeline': 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
