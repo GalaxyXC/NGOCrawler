@@ -1,18 +1,9 @@
 import os
 import json
-import time
 
-from lxml import html    #这里我们用lxml，也就是xpath的方法
 import psycopg2
-import scrapy
-from scrapy.crawler import CrawlerProcess
-
-import config as cfg
-import ngo.ngo.spiders.NGOUrlSpider as UrlSpider
-import ngo_basic_info.ngo_basic_info.spiders.BasicInfoSpider as BasicSpider
 
 JOB_QUEUE_OUTPUT_DIR = "ngo/crawled/"
-
 
 
 class CrawlerEngine(object):
@@ -62,12 +53,8 @@ class CrawlerEngine(object):
 
         cursor.close()
 
-    # DEPRECATED: used pgAdmin's import to populate basic_info with 4850 rows from cfg.BASE_FILE
-    def __populate(self, conn):
-        # sql_import = "COPY sample_table FROM 'path/to/file' DELIMITER ',' CSV HEADER;
-        pass
-
-    def prepare_job_queue(self, conn):
+    # Generate a csv file with existing credit_id's from DB
+    def _prepare_job_queue(self, conn):
         cursor = conn.cursor()
 
         sql_count_row = "SELECT COUNT(*) FROM basic_info;"
@@ -85,36 +72,32 @@ class CrawlerEngine(object):
         cursor.close()
         return existing_org_ids
 
-    # Deprecated: call spider from command line console
-    def crawl_basic_info(self, job_queue):
-        q = job_queue
-        task_count = 0
-        while q:
-            url = q.pop()
-            try:
-                process = CrawlerProcess({
-                    'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
-                })
-                process.crawl(BasicSpider)
-                process.start()  # the script will block here until the crawling is finished
-                time.sleep(2)  # TODO need parser here
-                task_count += 1
-            except:
-                print("Fail to retrieve: ", url)
-                continue
+    def _prepare_url_queue(self, folder, prefix):
+        file_list = os.listdir(folder)
+        url_files = [f for f in file_list if f.startswith(prefix)]
+        url_queue = []
 
-            print("Successfully retrived %s records", task_count)
-        return task_count
+        for url_file in url_files:
+            with open(folder + url_file, 'r') as f:
+                text = f.readlines()
+                for line in text:
+                    url = line.split(', ')[1]
+                    url_queue.append(url)
+
+        with open(folder + "URL_QUEUE.csv", 'w') as f:
+            f.write(",".join(url_queue))
+
+        return url_queue
 
     def disconnect(self, conn):
         conn.close()
 
 if __name__ == '__main__':
     engine = CrawlerEngine()
-    conn = engine.connect()
+    # conn = engine.connect()
     # engine.create_table_basic_info(conn)
-    queue = engine.prepare_job_queue(conn)
+    # Use pgAdmin4 to import existing data into DB
+    # queue = engine._prepare_job_queue(conn)
 
-
-
-    engine.disconnect(conn)
+    urls = engine._prepare_url_queue(JOB_QUEUE_OUTPUT_DIR, "URLs_to_crawl_")
+    # engine.disconnect(conn)

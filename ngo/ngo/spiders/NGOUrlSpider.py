@@ -1,17 +1,15 @@
 import os
-import time
 
 import scrapy
 
 OUTPUT_DIR = "crawled/"
 REQUEST_PART1 = "http://cishan.chinanpo.gov.cn/biz/ma/csmh/a/csmhaDoSort.html?aaee0102_03=&field=aaee0103&sort=desc&flag=0&pageNo="
-MAX_PAGE = 50
+MAX_PAGE = 344
 START_PAGE = 1
 with open(OUTPUT_DIR + "existing_ids.txt", 'r') as f:
     EXISTING_ORG_IDS_STR = f.read()
 print(EXISTING_ORG_IDS_STR[:100])
 
-# TODO Test this crawler
 class NGOUrlSpider(scrapy.Spider):
     name = "ngo_urls"
     start_urls = [REQUEST_PART1+str(i+START_PAGE) for i in range(MAX_PAGE)]
