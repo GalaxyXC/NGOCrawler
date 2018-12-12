@@ -54,7 +54,7 @@ class CrawlerEngine(object):
         cursor.close()
 
     # Generate a csv file with existing credit_id's from DB
-    def _prepare_job_queue(self, conn):
+    def _prepare_existing_id(self, conn):
         cursor = conn.cursor()
 
         sql_count_row = "SELECT COUNT(*) FROM basic_info;"

@@ -17,7 +17,6 @@ def date9_to_date8(date_str):
 
     return date_str
 
-
 def _change_date_format(source_file):
     writer_handle = open("crawled/x2_date_formatted.csv", 'a', encoding='utf-8')
 

@@ -19,6 +19,8 @@ cd D:/DB/PostgreSQL/11/bin/
 (admin) psql "dbname=postgres host=localhost user=admin password=devPw port=5432 sslmode=require"
 (entered into psql shell)
 (stop db server): pg_ctl -D ^"D^:^\DB^\PostgreSQL^\11^\data^\^"^"  stop
+(export table with newline symbol in psql)
+ \copy (SELECT * FROM basic_info) to 'basic_info.csv' WITH (FORMAT CSV, HEADER TRUE, FORCE_QUOTE *, ENCODING 'UTF8');
 
 
 "dynamic" content:
@@ -57,5 +59,9 @@ Cookie: Hm_lvt_3adce665674fbfb5552846b40f1c3cbc=1542598485; Hm_lpvt_3adce665674f
 
 date format is not unified: use ngo_basic_info/ngo_basic_info/_util_parse_csv.py to change date formats
 
+
+
+>> Not found in Trust database website:
+['弘毅1号--社区养老公益组织扶持慈善信托', '中信•何享健慈善基金会2017顺德社区慈善信托', '百瑞仁爱•映山红 慈善信托', '大同系列•同心扬梦慈善信托计划', '刑白家族•慈善信托', '百瑞仁爱•甘霖慈善信托', '万向信托 艺酷慈善信托']
 """
 
